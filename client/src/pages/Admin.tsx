@@ -74,6 +74,7 @@ export default function Admin() {
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     occupationType: "" as string,
+    status: "" as string,
   });
 
   // Check if the user is authenticated
@@ -91,10 +92,29 @@ export default function Admin() {
       "/api/admin/leads/filter", 
       filters.startDate, 
       filters.endDate, 
-      filters.occupationType
+      filters.occupationType,
+      filters.status,
     ],
+    queryFn: async () => {
+      const queryParams = new URLSearchParams();
+      if (filters.startDate && filters.endDate) {
+        queryParams.append("startDate", format(filters.startDate, "yyyy-MM-dd"));
+        queryParams.append("endDate", format(filters.endDate, "yyyy-MM-dd"));
+      }
+      if (filters.occupationType && filters.occupationType !== "all") {
+        queryParams.append("occupationType", filters.occupationType);
+      }
+      if (filters.status && filters.status !== "all") {
+        queryParams.append("status", filters.status);
+      }
+      const url = `/api/admin/leads/filter?${queryParams.toString()}`;
+      const response = await apiRequest("GET", url);
+      return response.json();
+    },
     enabled: !!authData?.authenticated && authData.user?.isAdmin,
   });
+
+  
   
   // Update lead status mutation
   const updateStatusMutation = useMutation({
@@ -176,6 +196,7 @@ export default function Admin() {
       startDate: undefined,
       endDate: undefined,
       occupationType: "",
+      status: "",
     });
   };
 
@@ -287,6 +308,23 @@ export default function Admin() {
                  <SelectContent>
                  <SelectItem value="all">All Types</SelectItem>  {/* changed here */}
                    {getOccupationTypes().map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+
+               <Select
+                  value={filters.status}
+                  onValueChange={(value) => setFilters({ ...filters, status: value })}
+                >
+                 <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Status " />
+                  </SelectTrigger>
+                 <SelectContent>
+                 <SelectItem value="all">All </SelectItem>  {/* changed here */}
+                   {getLeadStatuses().map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
                      </SelectItem>

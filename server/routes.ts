@@ -150,16 +150,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/leads/filter", isAdmin, async (req, res, next) => {
     try {
-      const { startDate, endDate, occupationType } = req.query;
+      const { startDate, endDate, occupationType, status } = req.query;
       let leads;
 
-      if (startDate && endDate) {
+      if(status && startDate && endDate && occupationType){
+        leads = await storage.getLoanLeadsByDateRangeAndOccupationTypeAndStatus( 
+          new Date(startDate as string),
+          new Date(endDate as string),
+          occupationType as string,
+          status as string
+        );
+      }else if (startDate && endDate && occupationType) {
+        leads = await storage.getLoanLeadsByDateRangeAndOccupationType(
+          new Date(startDate as string),
+          new Date(endDate as string),
+          occupationType as string
+        );
+      }else if (status && startDate && endDate) {
+        leads = await storage.getLoanLeadsByStatusAndDateRange(
+          status as string, 
+          new Date(startDate as string),
+          new Date(endDate as string)
+        );
+      } else if (status && occupationType) {
+        leads = await storage.getLoanLeadsByStatusAndOccupationType(status as string, occupationType as string);
+      } else if (startDate && endDate) {
         leads = await storage.getLoanLeadsByDateRange(
           new Date(startDate as string),
           new Date(endDate as string)
         );
       } else if (occupationType) {
         leads = await storage.getLoanLeadsByOccupationType(occupationType as string);
+      } else if (status) {
+        leads = await storage.getLoanLeadsByStatus(status as string);
       } else {
         leads = await storage.getAllLoanLeads();
       }

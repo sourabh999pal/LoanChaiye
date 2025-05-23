@@ -4,7 +4,7 @@ export const loanFormSchema = z.object({
   fullName: z.string().optional(),
   mobileNumber: z.string()
     .min(10, "Mobile number must be at least 10 digits")
-    .max(15, "Mobile number must not exceed 15 digits")
+    .max(10, "Mobile number must not exceed 10 digits")
     .regex(/^[0-9+\s-]+$/, "Invalid mobile number format"),
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   panCard: z.string()
