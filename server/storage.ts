@@ -54,6 +54,33 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(loanLeads);
   }
 
+  async getLoanLeadsByDateRangeAndOccupationType(startDate: Date, endDate: Date, occupationType: string): Promise<LoanLead[]> {
+    return await db
+      .select()
+      .from(loanLeads)
+      .where(
+        and(
+          gte(loanLeads.createdAt, startDate),
+          lte(loanLeads.createdAt, endDate),
+          eq(loanLeads.occupationType, occupationType)
+        )
+      );
+  }
+
+  async getLoanLeadsByDateRangeAndOccupationTypeAndStatus(startDate: Date, endDate: Date, occupationType: string, status: string): Promise<LoanLead[]> {
+    return await db
+      .select()
+      .from(loanLeads)
+      .where(
+        and(
+          gte(loanLeads.createdAt, startDate),
+          lte(loanLeads.createdAt, endDate),
+          eq(loanLeads.occupationType, occupationType),
+          eq(loanLeads.status, status)
+        )
+      );
+  }
+
   async getLoanLeadsByDateRange(startDate: Date, endDate: Date): Promise<LoanLead[]> {
     return await db
       .select()
@@ -71,6 +98,36 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(loanLeads)
       .where(eq(loanLeads.occupationType, occupationType));
+  }
+
+  async getLoanLeadsByStatusAndDateRange(status: string, startDate: Date, endDate: Date): Promise<LoanLead[]> {
+    return await db
+      .select()
+      .from(loanLeads)
+      .where(
+        and(
+          gte(loanLeads.createdAt, startDate),
+          lte(loanLeads.createdAt, endDate),
+          eq(loanLeads.status, status)
+        )
+      );
+  }
+
+  async getLoanLeadsByStatusAndOccupationType(status: string, occupationType: string): Promise<LoanLead[]> {
+    return await db
+      .select()
+      .from(loanLeads)
+      .where(and(
+        eq(loanLeads.status, status),
+        eq(loanLeads.occupationType, occupationType)
+      ));
+  }
+
+  async getLoanLeadsByStatus(status: string): Promise<LoanLead[]> {
+    return await db
+      .select()
+      .from(loanLeads)
+      .where(eq(loanLeads.status, status));
   }
 
   async updateLoanLeadStatus(id: number, status: string): Promise<LoanLead | undefined> {
